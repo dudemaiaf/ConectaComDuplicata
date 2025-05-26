@@ -14,11 +14,8 @@ class ComunidadeSerializer(serializers.ModelSerializer):
         fields = ['id', 'titulo', 'descricao', 'participando']
 
     def get_participando(self, obj):
-        request = self.context.get('request')
-        user_id = request.query_params.get('user_id') if request else None
-        if user_id:
-            return obj.participantes.filter(id=user_id).exists()
-        return False
+        user = self.context['request'].user
+        return user in obj.participantes.all()
 
 class EventoSerializer(serializers.ModelSerializer):
     participando = serializers.SerializerMethodField()
@@ -28,11 +25,8 @@ class EventoSerializer(serializers.ModelSerializer):
         fields = ['id', 'titulo', 'descricao', 'diaHora', 'participando']
 
     def get_participando(self, obj):
-        request = self.context.get('request')
-        user_id = request.query_params.get('user_id') if request else None
-        if user_id:
-            return obj.participantes.filter(id=user_id).exists()
-        return False
+        user = self.context['request'].user
+        return user in obj.participantes.all()
 
 class PostagemSerializer(serializers.ModelSerializer):
     class Meta:
