@@ -63,10 +63,11 @@ class EventoView(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def avaliar_evento(self, request, pk=None):
         evento = self.get_object()
-        if (request.query_params.get('avaliar', None) == True):
-            evento += evento.react_positivo
+        if (request.data.get('avaliar') == True):
+            evento.react_positivo += 1
         else:
-            evento += evento.react_positivo
+            evento.react_negativo += 1
+        evento.save()
         return Response({'detail': 'Avaliação realizada.'}, status=status.HTTP_200_OK)
 
     #     return queryset
@@ -76,17 +77,25 @@ class EventoView(viewsets.ModelViewSet):
         return Response({"message": "Evento desativado"}, status=status.HTTP_204_NO_CONTENT)
 
 class PostagemView(viewsets.ModelViewSet):
-    # permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.PostagemSerializer
-    # queryset = models.Evento.objects.filter(ativo=True)
-    # def get_queryset(self):
-    #     # p_usuario = self.request.query_params.get('servidor', None)
-    #     p_comunidade = self.request.query_params.get('comunidade', None)
-    #     if (p_comunidade):
     queryset = models.Postagem.objects.filter(ativo=True)
-    #     else:
-    #         queryset = models.Postagem.objects.filter(ativo=True)
-    #     return queryset
+
+    def get_serializer_context(self):
+        # Inclui o request no contexto do serializer para acessar o usuário
+        context = super().get_serializer_context()
+        context.update({'request': self.request})
+        return context
+    
+    @action(detail=True, methods=['post'])
+    def avaliar_postagem(self, request, pk=None):
+        evento = self.get_object()
+        if (request.data.get('avaliar') == True):
+            evento.react_positivo += 1
+        else:
+            evento.react_negativo += 1
+        evento.save()
+        return Response({'detail': 'Avaliação realizada.'}, status=status.HTTP_200_OK)
+    
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.delete()
