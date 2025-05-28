@@ -1,17 +1,19 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework import generics
 from rest_framework.decorators import action
 from datetime import datetime, date, timedelta
+from django.contrib.auth.models import User
 from . import models
 from . import serializers
 
-class TesteViewSet(viewsets.ModelViewSet):
-    queryset = models.Teste.objects.all()
-    serializer_class = serializers.TesteSerializer
+class CadastroView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = serializers.CadastroSerializer
+    permission_classes = [permissions.AllowAny]
 
 class ComunidadeView(viewsets.ModelViewSet):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.ComunidadeSerializer
     queryset = models.Comunidade.objects.filter(ativo=True)
 
@@ -39,7 +41,7 @@ class ComunidadeView(viewsets.ModelViewSet):
         return Response({"message": "Comunidade desativada"}, status=status.HTTP_204_NO_CONTENT)
     
 class EventoView(viewsets.ModelViewSet):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.EventoSerializer
     queryset = models.Evento.objects.filter(ativo=True)
     def get_serializer_context(self):
@@ -77,6 +79,7 @@ class EventoView(viewsets.ModelViewSet):
         return Response({"message": "Evento desativado"}, status=status.HTTP_204_NO_CONTENT)
 
 class PostagemView(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.PostagemSerializer
     queryset = models.Postagem.objects.filter(ativo=True)
 
